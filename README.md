@@ -1,6 +1,6 @@
 "# Iris_assistant" 
+내가 쓸려고 만듬
 
-ollama
 
 메모리
 8GB = 7B model
