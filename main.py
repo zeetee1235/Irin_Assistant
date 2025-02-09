@@ -21,10 +21,10 @@ def transcribe_audio(filename="voice.wav"): # 음성 텍스트로 변환환
     print("변환된 텍스트:", result["text"])
     return result["text"]
 
-def ask_deepseek(question):
+def ask_LLM(question):
     url = "http://localhost:11434/api/generate"
     payload = {
-        "model": "deepseek-r1", #deepseek-r1 7B
+        "model": "Iris", 
         "prompt": question,
         "stream": False
     }
@@ -33,3 +33,4 @@ def ask_deepseek(question):
         return response.json().get("response", "No response from model.")
     else:
         return f"Error: {response.status_code}"
+    

@@ -1,4 +1,4 @@
-FROM llama-3-Korean-Bllossom-8B-Q4_K_M.gguf
+FROM Iris-8B-Q4.gguf
 
 TEMPLATE """{{ if .System }}<|im_start|>system
 {{ .System }}<|im_end|>
