@@ -23,8 +23,7 @@ def transcribe_audio(filename="voice.wav"): # 음성 텍스트로 변환환
 
 
 
-if __name__ == "__main__":
-    record_audio(duration=5)
-    transcribe_audio()
+record_audio(duration=5)
+transcribe_audio()
 
 

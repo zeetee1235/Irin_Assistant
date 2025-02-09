@@ -1,10 +1,10 @@
 import requests
 
-def ask_deepseek(question):
+def ask_LLM(x):
     url = "http://localhost:11434/api/generate"
     payload = {
         "model": "Iris",
-        "prompt": question,
+        "prompt": x,
         "stream": False
     }
     response = requests.post(url, json=payload)
@@ -13,10 +13,9 @@ def ask_deepseek(question):
     else:
         return f"Error: {response.status_code}"
 
-if __name__ == "__main__":
-    while True:
-        user_input = input("질문을 입력하세요 (종료: exit): ")
-        if user_input.lower() == "exit":
-            break
-        answer = ask_deepseek(user_input)
-        print("답변:", answer)
+while True:
+    user_input = input("질문을 입력하세요 (종료: exit): ")
+    if user_input.lower() == "exit":
+        break
+    answer = ask_LLM(user_input) ###
+    print("답변:", answer)

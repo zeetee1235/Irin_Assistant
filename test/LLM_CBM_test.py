@@ -6,7 +6,7 @@ from langchain_community.llms import Ollama
 llm = Ollama(model="Iris")
 
 # 메모리 초기화
-memory = ConversationBufferMemory()
+memory = ConversationBufferMemory(llm=llm)
 
 # 대화 체인 생성
 conversation = ConversationChain(

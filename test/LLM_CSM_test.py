@@ -15,8 +15,8 @@ conversation = ConversationChain(
 )
 
 # 대화
-response = conversation.predict(input="안녕 나는 zeetee야.")
+response = conversation.predict(input = "제 2차 세계대전에서 나치독일과 소련사이에 발발한 독소전쟁에 대해 설명해줘")
 print(response)
 
-response = conversation.predict(input="내 이름이 뭐였지??")
+response = conversation.predict(input = "독소전쟁이 뭐였지?")
 print(response)
