@@ -5,17 +5,14 @@ import scipy.io.wavfile as wav
 from langchain.memory import ConversationBufferMemory
 from langchain.memory import ConversationSummaryMemory
 from langchain.chains import ConversationChain
-from langchain_community.llms import Ollama
+from langchain_ollama import OllamaLLM
 
 
-
-Iris = Ollama(model="Iris")
-chat_memory = []
-chat_memory_CBM = []
-chat_memory_CSM = []
+Iris = OllamaLLM(model="Iris")
+chat_memory_list = []
+chat_memory_CBM_list = ConversationBufferMemory(llm = Iris) #전체기억 메모리
+chat_memory_CSM_list = ConversationSummaryMemory(llm = Iris) #요약기억 메모리
 questsion_number = 0
-memory = ConversationBufferMemory(llm=Iris) #CBM 전체기억
-sum_memory = ConversationSummaryMemory(llm=Iris) #CSM 요약기억
 conversation = 0
 
 
@@ -54,17 +51,19 @@ def create_questsion_data(input,output):
 
 
 def organize_memory():
-    global chat_memory
-    global chat_memory_CBM
-    global chat_memory_CSM
-    if chat_memory.count == 250:
-        chat_memory.pop(0)
-    if chat_memory_CBM.count == 50:
-        chat_memory_CBM.pop(0)
-    if chat_memory_CSM.count == 150:
-        chat_memory_CSM.pop(0)
+    global chat_memory_list
+    global chat_memory_CBM_list
+    global chat_memory_CSM_list
+    
+    if chat_memory_CBM_list.count > 50:
+        chat_memory_CSM_list.save_context({"input": chat_memory_list[50]["input"]}, {"output": chat_memory_list[50]["output"]})
+        del chat_memory_CBM_list.chat_memory.messages[0]
 
-
+    if chat_memory_CSM_list.count > 150:
+        del chat_memory_CSM_list.chat_memory.messages[0]
+    
+    if chat_memory_list.count > 200:
+        chat_memory_list.pop(0)
 
 def save_memory(memory_list):
     cbm = ConversationBufferMemory(llm=Iris)
@@ -74,36 +73,30 @@ def save_memory(memory_list):
     
 
 def clear_all_memory():
-    global chat_memory
-    chat_memory = []
-
-
-def change_memory_CBM(x):
     x=x
 
 
-def change_memory_CSM(x):
+def change_memory_CBM_to_CSM(x):
     x=x
-
 
 
 def generate_conversationchain():
     global conversation
     conversation = ConversationChain(
         llm = Iris,
-        memory = memory
+        memory = ConversationBufferMemory()
     )
 
 
 def run_Iris():
-    global chat_memory
+    global chat_memory_list
     while True:
         user_input = input("질문 입력 (종료: exit): ")
         if user_input.lower() == "exit":
             break
-        answer = ask_LLM(user_input)
-        memory_data = create_questsion_data(user_input,answer)
-        chat_memory.append(memory_data)
+        answer = Iris(user_input)
+        base_memory_data = create_questsion_data(user_input,answer)
+        chat_memory_list.append(base_memory_data)
         print("Iris:", answer)
 
 

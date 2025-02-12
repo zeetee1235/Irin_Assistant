@@ -1,7 +1,18 @@
 #잡다한거 테스트용
 
-
+'''
 from langchain.memory import ConversationBufferMemory
+
+chat_memory = []
+
+chat_memory.append = ConversationBufferMemory()
+
+chat_memory.append = ConversationBufferMemory()
+
+chat_memory.append = ConversationBufferMemory()
+
+
+print(chat_memory.count)
 
 # 기존 메모리 초기화
 memory = ConversationBufferMemory()
@@ -11,3 +22,25 @@ memory.save_context({"input": "안녕하세요!"}, {"output": "안녕하세요! 
 
 # 메모리 재설정
 memory = ConversationBufferMemory()  # 새로운 메모리 객체로 교체
+
+memory.clear()
+'''
+
+from langchain.memory import ConversationBufferMemory
+
+# 메모리 객체 초기화
+memory = ConversationBufferMemory()
+
+# 대화 내용 저장
+memory.save_context({"input": "안녕"}, {"output": "안녕하세요! 무엇을 도와드릴까요?"})
+memory.save_context({"input": "오늘 날씨 어때?"}, {"output": "오늘은 맑은 날씨입니다."})
+
+# 현재 메모리 내용 확인
+print("Before removal:", memory.load_memory_variables({}))
+
+# 특정 메시지 제거 (예: 첫 번째 메시지)
+if len(memory.chat_memory.messages) > 0:
+    del memory.chat_memory.messages[0]
+
+# 메시지 제거 후 메모리 내용 확인
+print("After removal:", memory.load_memory_variables({}))
