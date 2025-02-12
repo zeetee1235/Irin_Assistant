@@ -3,18 +3,16 @@ import numpy as np
 import whisper
 import scipy.io.wavfile as wav
 from langchain.memory import ConversationBufferMemory
-from langchain.memory import ConversationSummaryMemory
 from langchain.chains import ConversationChain
 from langchain_ollama import OllamaLLM
+from langchain.schema import HumanMessage, AIMessage
 
 
 Iris = OllamaLLM(model="Iris")
 chat_memory_list = []
-chat_memory_CBM_list = ConversationBufferMemory(llm = Iris) #전체기억 메모리
-chat_memory_CSM_list = ConversationSummaryMemory(llm = Iris) #요약기억 메모리
+chat_memory_CBM= ConversationBufferMemory(llm = Iris) #전체기억 메모리
 questsion_number = 0
-conversation = 0
-
+conversationchain = 0
 
 
 def record_audio(duration=5, samplerate=44100, filename="voice.wav"): 
@@ -36,11 +34,6 @@ def transcribe_audio(filename="voice.wav"):
     return result["text"]
 
 
-def ask_LLM(question):
-    answer = conversation.predict(input = question)
-    return answer
-
-
 def create_questsion_data(input,output):
     global questsion_number
     response_data = {
@@ -50,39 +43,28 @@ def create_questsion_data(input,output):
     return response_data
 
 
-def organize_memory():
+def remove_memory():
     global chat_memory_list
-    global chat_memory_CBM_list
-    global chat_memory_CSM_list
-    
-    if chat_memory_CBM_list.count > 50:
-        chat_memory_CSM_list.save_context({"input": chat_memory_list[50]["input"]}, {"output": chat_memory_list[50]["output"]})
-        del chat_memory_CBM_list.chat_memory.messages[0]
-
-    if chat_memory_CSM_list.count > 150:
-        del chat_memory_CSM_list.chat_memory.messages[0]
-    
-    if chat_memory_list.count > 200:
+    if chat_memory_list.count == 100:
+        message_to_remove_human = HumanMessage(content = chat_memory_list[0]["input"])
         chat_memory_list.pop(0)
+        conversationchain.chat_memory.messages.remove[message_to_remove_human]
 
-def save_memory(memory_list):
-    cbm = ConversationBufferMemory(llm=Iris)
-    x = memory_list["input"]
-    y = memory_list["output"]
-    cbm.save_context({"input": x}, {"output": y})
+
+def save_memory(input_memory_list):
+    global chat_memory_CBM
+    x = input_memory_list["input"]
+    y = input_memory_list["output"]
+    chat_memory_CBM.save_context({"input": x}, {"output": y})
     
 
 def clear_all_memory():
     x=x
 
 
-def change_memory_CBM_to_CSM(x):
-    x=x
-
-
 def generate_conversationchain():
-    global conversation
-    conversation = ConversationChain(
+    global conversationchain
+    conversationchain = ConversationChain(
         llm = Iris,
         memory = ConversationBufferMemory()
     )
@@ -90,13 +72,15 @@ def generate_conversationchain():
 
 def run_Iris():
     global chat_memory_list
+    generate_conversationchain()
     while True:
         user_input = input("질문 입력 (종료: exit): ")
         if user_input.lower() == "exit":
             break
-        answer = Iris(user_input)
-        base_memory_data = create_questsion_data(user_input,answer)
-        chat_memory_list.append(base_memory_data)
+        answer = conversationchain.predict(input=user_input)
+        memory_data = create_questsion_data(user_input,answer)
+        chat_memory_list.append(memory_data)
+        remove_memory()
         print("Iris:", answer)
 
 

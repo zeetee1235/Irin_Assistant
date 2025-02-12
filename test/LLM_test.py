@@ -1,4 +1,12 @@
 import requests
+from langchain_ollama import OllamaLLM
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationChain
+
+
+Iris = OllamaLLM(model="Iris")
+memory = ConversationBufferMemory(llm = "Iris")
+conversation = 0
 
 def ask_LLM(x):
     url = "http://localhost:11434/api/generate"
@@ -13,9 +21,20 @@ def ask_LLM(x):
     else:
         return f"Error: {response.status_code}"
 
+
+def generate_conversationchain():
+    global conversation
+    global memory
+    conversation = ConversationChain(
+        llm = Iris,
+        memory = memory
+    )
+
+
 while True:
-    user_input = input("질문을 입력하세요 (종료: exit): ")
+    generate_conversationchain()
+    user_input = input("질문 입력 (종료: exit): ")
     if user_input.lower() == "exit":
         break
-    answer = ask_LLM(user_input) ###
-    print("답변:", answer)
+    answer = conversation.predict(input=user_input)
+    print(answer)
