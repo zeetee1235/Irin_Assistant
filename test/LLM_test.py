@@ -4,8 +4,8 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationChain
 
 
-Iris = OllamaLLM(model="Iris")
-memory = ConversationBufferMemory(llm = "Iris")
+Irin = OllamaLLM(model="Irin")
+memory = ConversationBufferMemory(llm = "Irin")
 conversation = 0
 
 def ask_LLM(x):
@@ -26,7 +26,7 @@ def generate_conversationchain():
     global conversation
     global memory
     conversation = ConversationChain(
-        llm = Iris,
+        llm = Irin,
         memory = memory
     )
 

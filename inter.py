@@ -3,11 +3,11 @@ from tkinter import scrolledtext
 from langchain_ollama import OllamaLLM
 
 # Ollama 모델 초기화
-Iris = OllamaLLM(model="Iris")
+Irin = OllamaLLM(model="Irin")
 
 # GUI 창 생성
 window = tk.Tk()
-window.title("LLM 대화 인터페이스")
+window.title("Iris")
 window.geometry("500x400")
 
 # 대화 기록 표시 영역
@@ -27,7 +27,7 @@ def send_message(event=None):
         chat_display.configure(state='disabled')
         
         # LLM 응답 생성
-        response = Iris(message)
+        response = Irin(message)
         
         # LLM 응답 표시
         chat_display.configure(state='normal')

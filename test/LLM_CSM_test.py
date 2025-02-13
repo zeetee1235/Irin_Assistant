@@ -3,7 +3,7 @@ from langchain.chains import ConversationChain
 from langchain_community.llms import Ollama
 
 # LLM 초기화
-llm = Ollama(model="Iris")
+llm = Ollama(model="Irin")
 
 # 요약 메모리 초기화
 memory = ConversationSummaryMemory(llm=llm)

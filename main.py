@@ -11,9 +11,9 @@ from tkinter import scrolledtext
 
 
 
-Iris = OllamaLLM(model="Iris")
+Irin = OllamaLLM(model="irin")
 chat_memory_list = []
-chat_memory_CBM= ConversationBufferMemory(llm = Iris) #전체기억 메모리
+chat_memory_CBM= ConversationBufferMemory(llm = Irin) #전체기억 메모리
 questsion_number = 0
 conversationchain = 0
 
@@ -37,7 +37,7 @@ def transcribe_audio(filename="voice.wav"):
     print("변환된 텍스트:", result["text"])
     return result["text"]
 
-
+#메모리 가공
 def create_questsion_data(input,output):
     global questsion_number
     response_data = {
@@ -46,7 +46,7 @@ def create_questsion_data(input,output):
     }
     return response_data
 
-
+#메모리 제거
 def remove_memory():
     global chat_memory_list
     if chat_memory_list.count == 100:
@@ -54,7 +54,7 @@ def remove_memory():
         chat_memory_list.pop(0)
         conversationchain.chat_memory.messages.remove[message_to_remove_human]
 
-
+#프롬프트 메모리 저장
 def save_memory(input_memory_list):
     global chat_memory_CBM
     x = input_memory_list["input"]
@@ -65,16 +65,16 @@ def save_memory(input_memory_list):
 def clear_all_memory():
     x=x
 
-
+#대화체인 생성
 def generate_conversationchain():
     global conversationchain
     conversationchain = ConversationChain(
-        llm = Iris,
+        llm = Irin,
         memory = ConversationBufferMemory()
     )
 
 
-def run_Iris():
+def run_Irin():
     global chat_memory_list
     generate_conversationchain()
     while True:
@@ -90,8 +90,8 @@ def run_Iris():
 
 # GUI 창 생성
 window = tk.Tk()
-window.title("Iris")
-window.geometry("500x400")
+window.title("Irin")
+window.geometry("1000x800")
 
 # 대화 기록 표시 영역
 chat_display = scrolledtext.ScrolledText(window, wrap=tk.WORD, state='disabled')
@@ -110,7 +110,7 @@ def send_message(event=None):
         chat_display.configure(state='disabled')
         
         # LLM 응답 생성
-        response = Iris(message)
+        response = Irin(message)
         
         # LLM 응답 표시
         chat_display.configure(state='normal')
@@ -132,7 +132,7 @@ window.mainloop()
 
 
 def test():
-    run_Iris()
+    run_Irin()
 
 
 #test()
