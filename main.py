@@ -72,20 +72,33 @@ def generate_conversationchain():
         llm = Irin,
         memory = ConversationBufferMemory()
     )
+#conversationchain 대문자 소문자 주의
 
 
-def run_Irin():
+def run_Irin(): #반복 질문
     global chat_memory_list
     generate_conversationchain()
     while True:
-        user_input = input("질문 입력 (종료: exit): ")
-        if user_input.lower() == "exit":
+        user_quest = input("질문 입력 (종료: exit): ")
+        if user_quest.lower() == "exit":
             break
-        answer = conversationchain.predict(input=user_input)
-        memory_data = create_questsion_data(user_input,answer)
+        answer = conversationchain.predict(input=user_quest)
+        memory_data = create_questsion_data(user_quest,answer)
         chat_memory_list.append(memory_data)
         remove_memory()
         print("Iris:", answer)
+
+
+def ask_Irin(user_quest): #단순질문 앞에 대화체인을 먼저 생성해 놔야함
+    global chat_memory_list
+    global conversationchain
+    answer_data = conversationchain.predict(input=user_quest)
+    irin_answer = answer_data
+    memory_data = create_questsion_data(user_quest,answer_data)
+    chat_memory_list.append(memory_data)
+    remove_memory()
+    return irin_answer
+
 
 
 # GUI 창 생성
@@ -110,7 +123,7 @@ def send_message(event=None):
         chat_display.configure(state='disabled')
         
         # LLM 응답 생성
-        response = Irin(message)
+        response = ask_Irin(message)
         
         # LLM 응답 표시
         chat_display.configure(state='normal')
@@ -123,9 +136,11 @@ def send_message(event=None):
         # 입력 필드 초기화
         user_input.delete(0, tk.END)
 
+
 # 엔터 키 이벤트 바인딩
 user_input.bind("<Return>", send_message)
 
+generate_conversationchain()
 # GUI 루프 시작
 window.mainloop()
 

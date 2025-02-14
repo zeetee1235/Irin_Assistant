@@ -6,7 +6,7 @@ from langchain.chains import ConversationChain
 
 Irin = OllamaLLM(model="Irin")
 memory = ConversationBufferMemory(llm = "Irin")
-conversation = 0
+conversationchain = 0
 
 def ask_LLM(x):
     url = "http://localhost:11434/api/generate"
@@ -38,3 +38,19 @@ while True:
         break
     answer = conversation.predict(input=user_input)
     print(answer)
+
+
+'''    
+def run_Irin(): #반복 질문
+    global chat_memory_list
+    generate_conversationchain()
+    while True:
+        user_quest = input("질문 입력 (종료: exit): ")
+        if user_quest.lower() == "exit":
+            break
+        answer = conversationchain.predict(input=user_quest)
+        memory_data = create_questsion_data(user_quest,answer)
+        chat_memory_list.append(memory_data)
+        remove_memory()
+        print("Iris:", answer)
+'''
