@@ -11,14 +11,6 @@ from tkinter import scrolledtext
 
 
 
-Irin = OllamaLLM(model="irin")
-chat_memory_list = []
-chat_memory_CBM= ConversationBufferMemory(llm = Irin) #전체기억 메모리
-questsion_number = 0
-conversationchain = 0
-
-
-
 def record_audio(duration=5, samplerate=44100, filename="voice.wav"): 
     #녹음시작
     audio_data = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype=np.int16)
@@ -36,6 +28,17 @@ def transcribe_audio(filename="voice.wav"):
     result = model.transcribe(filename)
     print("변환된 텍스트:", result["text"])
     return result["text"]
+
+
+
+#llm 관련변수
+Irin = OllamaLLM(model="irin")
+chat_memory_list = []
+chat_memory_CBM= ConversationBufferMemory(llm = Irin) #전체기억 메모리
+questsion_number = 0
+conversationchain = 0
+
+
 
 #메모리 가공
 def create_questsion_data(input,output):
@@ -71,8 +74,7 @@ def generate_conversationchain():
     conversationchain = ConversationChain(
         llm = Irin,
         memory = ConversationBufferMemory()
-    )
-#conversationchain 대문자 소문자 주의
+    ) #conversationchain 대문자 소문자 주의
 
 
 def run_Irin(): #반복 질문
