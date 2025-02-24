@@ -9,6 +9,8 @@ from langchain.schema import HumanMessage, AIMessage
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow ,QWidget
 import sys
+from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtCore import Qt
 
 
 def record_audio(duration=5, samplerate=44100, filename="voice.wav"): 
@@ -33,77 +35,50 @@ def transcribe_audio(filename="src/voice.wav"):
 
 #llm 관련 전역역변수
 Irin = OllamaLLM(model="irin")
-chat_memory_list = []
-chat_memory_CBM= ConversationBufferMemory(llm = Irin) #전체기억 메모리
-questsion_number = 0
-conversationchain = 0
 
 
 
-#메모리 가공
-def create_questsion_data(input,output):
-    global questsion_number
-    response_data = {
-        "input": input,
-        "output": output
-    }
-    return response_data
 
-#메모리 제거
-def remove_memory():
-    global chat_memory_list
-    if chat_memory_list.count == 100:
-        message_to_remove_human = HumanMessage(content = chat_memory_list[0]["input"])
-        chat_memory_list.pop(0)
-        conversationchain.chat_memory.messages.remove[message_to_remove_human]
+class conversation_irin():
 
-#프롬프트 메모리 저장
-def save_memory(input_memory_list):
-    global chat_memory_CBM
-    x = input_memory_list["input"]
-    y = input_memory_list["output"]
-    chat_memory_CBM.save_context({"input": x}, {"output": y})
+    def __init__(self):
+        self.chat_memorys = []
+        self.memory = ConversationBufferMemory()
+        self.conversation = ConversationChain(
+        llm = Irin,
+        memory = self.memory
+        )
+
+
+    def create_questsion_data(self,input,output): #메모리 가공
+        response_data = {
+            "input": input,
+            "output": output
+        }
+        return response_data
     
 
-def clear_all_memory():
-    x=x
-
-#대화체인 생성
-def generate_conversationchain():
-    global conversationchain
-    conversationchain = ConversationChain(
-        llm = Irin,
-        memory = ConversationBufferMemory()
-    ) #conversationchain 대문자 소문자 주의
-
-
-def run_Irin(): #반복 질문
-    global chat_memory_list
-    generate_conversationchain()
-    while True:
-        user_quest = input("질문 입력 (종료: exit): ")
-        if user_quest.lower() == "exit":
-            break
-        answer = conversationchain.predict(input=user_quest)
-        memory_data = create_questsion_data(user_quest,answer)
-        chat_memory_list.append(memory_data)
-        remove_memory()
-        print("Iris:", answer)
+    def remove_memory(self): #메모리 제거
+        if self.chat_memorys.count >= 100:
+            """메세지 가져오기기"""
+            message_to_remove_human = HumanMessage(content = self.chat_memorys[0]["input"])
+            message_to_remove_LLM = AIMessage(content = self.chat_memorys [0]["output"])
+            """메세지 제거거"""
+            self.memory.chat_memory.remove[message_to_remove_human]
+            self.memory.chat_memory.remove[message_to_remove_LLM]
+            self.chat_memorys.pop(0)
 
 
-def ask_Irin(user_quest): #단순질문 앞에 대화체인을 먼저 생성해 놔야함
-    global chat_memory_list
-    global conversationchain
-    answer_data = conversationchain.predict(input=user_quest)
-    irin_answer = answer_data
-    memory_data = create_questsion_data(user_quest,answer_data)
-    chat_memory_list.append(memory_data)
-    remove_memory()
-    return irin_answer
+    def ask_irin(self,user_input):
+        answer_data = self.conversation.predict(input=user_input)
+        irin_answer = answer_data
+        memory_data = conversation_irin.create_questsion_data(user_input,answer_data)
+        self.chat_memorys.append(memory_data)
+        return irin_answer
 
 
 
-class MainWindow(QMainWindow): #ui
+class MainWindow(QMainWindow):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(549, 1065)
@@ -126,8 +101,6 @@ class MainWindow(QMainWindow): #ui
         self.widget.setMinimumSize(QtCore.QSize(0, 60))
         self.widget.setStyleSheet("background-color:#787878\n"
 "")
-
-
         self.widget.setObjectName("widget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.widget)
         self.horizontalLayout.setContentsMargins(-1, 9, -1, 9)
@@ -198,6 +171,7 @@ class MainWindow(QMainWindow): #ui
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 527, 892))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.scrollLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)  # scrollLayout 초기화
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.display_top.addWidget(self.scrollArea, 0, 0, 1, 1)
         self.display.addLayout(self.display_top)
@@ -226,6 +200,8 @@ class MainWindow(QMainWindow): #ui
         self.chat_grid_top.setObjectName("chat_grid_top")
         self.textEdit = QtWidgets.QTextEdit(self.frame)
         self.textEdit.setObjectName("textEdit")
+        self.textEdit.setStyleSheet("font-size:15px;\n"
+)
         self.chat_grid_top.addWidget(self.textEdit, 0, 0, 1, 1)
         self.chat_grid.addLayout(self.chat_grid_top)
         self.line = QtWidgets.QFrame(self.frame)
@@ -331,7 +307,6 @@ class MainWindow(QMainWindow): #ui
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Irin"))
@@ -344,58 +319,71 @@ class MainWindow(QMainWindow): #ui
         self.btn_search.setText(_translate("MainWindow", "search"))
         self.btn_enter.setText(_translate("MainWindow", "Enter"))
 
+    def setupSignals(self):
+        """ 엔터 키 감지 및 메시지 추가 기능 연결 """
+        self.textEdit.installEventFilter(self)
 
+    def eventFilter(self, source, event):
+        """ 엔터 키 감지 """
+        if source == self.textEdit and event.type() == QtCore.QEvent.KeyPress:
+            if event.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
+                self.addMessage()
+                return True
+        return super().eventFilter(source, event)
+
+    def addMessage(self):
+        """ 입력된 메시지를 QLabel로 생성하여 ScrollArea에 추가 """
+        text = self.textEdit.toPlainText().strip()
+        if text:
+            # QLabel 생성 및 스타일 설정
+            label = QtWidgets.QLabel(text)
+            label.setWordWrap(True)
+            label.setStyleSheet("""
+                background-color: #f0f0f0;
+                padding: 10px;
+                border-radius: 10px;
+                margin: 5px;
+                font-size: 14px;
+            """)
+            
+            # QLabel의 크기 정책 설정
+            sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+            label.setSizePolicy(sizePolicy)
+            
+            # QLabel의 크기를 텍스트에 맞게 조정
+            label.adjustSize()
+            
+            # QLabel을 QHBoxLayout에 추가하여 오른쪽 정렬
+            message_layout = QtWidgets.QHBoxLayout()
+            message_layout.addStretch()
+            message_layout.addWidget(label)
+            message_layout.addStretch()
+            
+            # QHBoxLayout을 scrollLayout에 추가
+            self.scrollLayout.addLayout(message_layout)
+
+            # 입력창 비우기
+            self.textEdit.clear()
+
+            # 스크롤을 최신 메시지로 이동
+            self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum())
+
+    def getTextEditValue(self):
+        """ textEdit에 입력된 텍스트를 반환 """
+        return self.textEdit.toPlainText().strip()
 
 class irin_window(MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.retranslateUi(self)
-
-
-
-class conversation_irin():
-
-    def __init__(self,chat_memorys,conversationchain):
-        self.chat_memorys = chat_memorys
-        self.conversationchain = conversationchain #conversationchain 대문자 소문자 주의
-        
-
-    def create_questsion_data(self,input,output):
-        response_data = {
-            "input": input,
-            "output": output
-        }
-        return response_data
-
-
-    def remove_memory(self):
-        if chat_memory_list.count == 100:
-            message_to_remove_human = HumanMessage(content = chat_memory_list[0]["input"])
-            chat_memory_list.pop(0)
-            conversationchain.chat_memory.messages.remove[message_to_remove_human]
-        
-
-    def ask_irin(self,user_input):
-        answer_data = conversationchain.predict(input=user_input)
-        irin_answer = answer_data
-        memory_data = create_questsion_data(user_input,answer_data)
-        chat_memory_list.append(memory_data)
-        remove_memory()
-        return irin_answer
-
-
+        self.setupSignals()  # 이벤트 필터
+        self.scrollLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)  # scrollLayout 초기화
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = irin_window()
     window.show()
     sys.exit(app.exec_())
-
-def set_screen():
-    x=x
-
-def test():
-    set_screen
 
 
