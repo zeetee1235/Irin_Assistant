@@ -61,7 +61,7 @@ app.get('/get-messages', (req, res) => {
             }
         }
         console.log('All messages:', messages); // 콘솔에 저장된 모든 메시지 출력
-        res.json(messages.user_input);
+        res.json(messages);
     });
 });
 

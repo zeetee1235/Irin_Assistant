@@ -59,18 +59,18 @@ body {
 }
 
 .chat-input button:hover {
-    background-color: #0056b3;
+    background-color: #2a344a;
 }
 
 .message {
     margin: 0;
     padding: 10px;
     border-radius: 0px;
-    background-color: #f1f1f1;
+    background-color: #465473;
 }
 
 .message.user {
-    background-color: #007bff;
+    background-color: #152038;
     color: #fff;
     align-self: flex-end;
 }
