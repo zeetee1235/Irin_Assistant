@@ -15,6 +15,7 @@ const memoryFilePath = path.join(__dirname, 'memory.json'); // 경로 수정
 app.post('/save-message', (req, res) => {
     const message = req.body.message;
     console.log('Received message:', message); // 디버깅을 위한 로그 추가
+    console.log('Received message:', message); // 디버깅을 위한 로그 추가
     if (message) {
         fs.readFile(memoryFilePath, 'utf8', (err, data) => {
             if (err) {

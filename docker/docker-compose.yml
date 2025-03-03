@@ -1,0 +1,41 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - irin_network
+
+  irin_assistant:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: irin_assistant:latest
+    container_name: irin_assistant
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./src/audio:/usr/src/app/src/audio
+      - ./src/memory.json:/usr/src/app/src/memory.json
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OLLAMA_HOST=ollama
+    devices:
+      - "/dev/snd:/dev/snd"
+    privileged: true
+    networks:
+      - irin_network
+
+networks:
+  irin_network:
+    driver: bridge
+
+volumes:
+  ollama_data:

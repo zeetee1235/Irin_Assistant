@@ -4,7 +4,12 @@ to do
 .add reset btn
 .add tts
 .add mic
-.
+.add docker
+.add voice_detect
+
+done
+.stable
+
 
 
 필요 메모리 vram
