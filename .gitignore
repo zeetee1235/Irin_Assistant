@@ -1,3 +1,6 @@
 .venv
 not_use
 model/Irin-8B-Q4.gguf
+model/Irin-3B-Q4_K_M.gguf
+docker/model/Irin-3B-Q4_K_M.gguf
+docker/model/Irin-8B-Q4.gguf

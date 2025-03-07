@@ -1,0 +1,36 @@
+FROM fedora:41
+
+# Install dependencies
+RUN dnf update -y && \
+    dnf install -y \
+    curl \
+    jq \
+    git \
+    && dnf clean all && \
+    curl -fsSL https://ollama.com/install.sh | sh
+
+# Create app directory and model directory
+WORKDIR /app
+RUN mkdir -p /root/.ollama/models
+
+# Copy Modelfile and scripts
+COPY model/Modelfile /app/model/Modelfile
+COPY setting/healthcheck.sh /usr/local/bin/healthcheck.sh
+RUN chmod +x /usr/local/bin/healthcheck.sh
+
+# Environment variables
+ENV OLLAMA_HOST=0.0.0.0
+ENV OLLAMA_MODELS=/root/.ollama/models
+
+# Download model file if not exists
+RUN if [ ! -f /root/.ollama/models/Irin-3B-Q4_K_M.gguf ]; then \
+    curl -L https://huggingface.co/zeetee1235/Irin_3B/resolve/main/Irin-3B-Q4_K_M.gguf \
+    -o /root/.ollama/models/Irin-3B-Q4_K_M.gguf; \
+    fi
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=3 \
+    CMD /usr/local/bin/healthcheck.sh
+
+EXPOSE 11434
+
+CMD ["ollama", "serve"]

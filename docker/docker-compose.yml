@@ -1,37 +1,70 @@
 services:
   ollama:
-    image: ollama/ollama
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ollama
     container_name: ollama
     volumes:
       - ollama_data:/root/.ollama
+      - ./model:/model
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     ports:
-      - "11434:11434"
+      - "11435:11434"
     networks:
       - irin_network
+    restart: unless-stopped
+    command: sh -c "ollama serve"
 
-  irin_assistant:
+  irin_assistant_py:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    image: irin_assistant:latest
-    container_name: irin_assistant
+    image: irin_assistant_py:latest
+    container_name: irin_assistant_py
     restart: unless-stopped
     depends_on:
-      - ollama
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./src:/usr/src/app/src
-      - ./src/audio:/usr/src/app/src/audio
-      - ./src/memory.json:/usr/src/app/src/memory.json
+      ollama:
+        condition: service_healthy
     environment:
       - PYTHONUNBUFFERED=1
-      - OLLAMA_HOST=ollama
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_TIMEOUT=120
     devices:
       - "/dev/snd:/dev/snd"
+    volumes:
+      - ../src:/usr/src/app/src
     privileged: true
     networks:
       - irin_network
+    ports: []  # 외부 포트 제거
+
+  irin_assistant_web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+      args:
+        - NODE_ENV=production
+    image: irin_assistant_web:latest
+    container_name: irin_assistant_web
+    restart: unless-stopped
+    depends_on:
+      - irin_assistant_py
+    ports:
+      - "3002:3000"  # 3001 -> 3002로 변경
+    volumes:
+      - ../src:/usr/src/app/src
+    networks:
+      - irin_network
+    environment:
+      - API_PORT=3002  # 3001 -> 3002로 변경
 
 networks:
   irin_network:

@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', (event) => {
+    const API_PORT = 3002;  // 포트 변경
+    const API_URL = `http://localhost:${API_PORT}`;
     const input = document.getElementById('chat-input');
     input.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
@@ -7,7 +9,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
 
     // Fetch and display all messages on page load
-    fetch('http://localhost:3000/get-messages')
+    fetch(`${API_URL}/get-messages`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -32,7 +34,7 @@ function sendMessage() {
         addMessage('user', message);
         input.value = '';
         // Save message to server
-        fetch('http://localhost:3000/save-message', {
+        fetch(`${API_URL}/save-message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

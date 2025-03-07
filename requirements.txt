@@ -1,11 +1,32 @@
-wheel>=0.38.4
-setuptools>=65.5.1
-numpy==1.24.3
-scipy==1.10.1
-sounddevice==0.4.6
-openai-whisper==20230918
-langchain>=0.1.1
-langchain-core>=0.1.7
+# Base requirements
+wheel>=0.42.0
+setuptools>=69.0.2
+PyAudio>=0.2.13
+requests>=2.31.0
+
+# Audio processing
+CFFI>=1.16.0
+numpy>=1.26.3
+scipy>=1.11.4
+sounddevice>=0.4.6
+
+# Web framework
+flask>=3.0.0
+python-dotenv>=1.0.0
+
+# ML/AI dependencies
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch>=2.2.0
+torchaudio>=2.2.0
+transformers>=4.37.0
+tiktoken>=0.5.0
+
+# LangChain stack 
+langchain>=0.1.2
+langchain-core>=0.1.18
 langchain-community>=0.0.10
 langchain-ollama>=0.1.3
-flask==2.3.3
+
+# Whisper and its dependencies
+ffmpeg-python>=0.2.0
+git+https://github.com/openai/whisper.git
